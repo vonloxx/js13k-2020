@@ -2,7 +2,8 @@
   "name": "Barry The Bird",
   "short_name": "Barry",
   "start_url": "index.html",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#fff",
-  "description": "A game."
+  "description": "A game.",
+  "orientation": "landscape"
 }
