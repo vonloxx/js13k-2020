@@ -7,13 +7,13 @@ import Heart from './heart';
 export default (props) => {
   const player = new Bird({
     // color: '#fff',
-    speed: 30,
+    speed: 15,
   });
   player.setScale(.4);
 
-  const followers = [];
-  const nonFollowers = [];
-  const haters = [];
+  let followers = [];
+  let nonFollowers = [];
+  let haters = [];
   const clouds = [];
   let hearts = [];
 
@@ -64,34 +64,13 @@ export default (props) => {
       nonFollowers.map((follower, i) => {
         follower.update();
 
-        follower.x < -50 && nonFollowers.splice(i, 1);
-        // if (collides(follower, player)) {
-        //   followers.push(new Bird({
-        //     x: follower.x,
-        //     y: follower.y,
-        //     rotation: 1,
-        //     color: follower.color,
-        //     speed: 4,
-        //   }));
-        //   followers[followers.length - 1].setScale(.2);
-  
-        //   delete nonFollowers[i];
-        // }
+        follower.x < -50 && (follower.ttl = 0);
       });
 
       haters.map((hater, i) => {
         hater.update();
 
-        hater.x < -50 && haters.splice(i, 1);
-
-        if (hater.x < player.x + 200) {
-          hater.target = player;
-          hater.moveTo(hater);
-        }
-        // if (collides(hater, player)) {
-        //   reputation -= 1 * followers.length + 1;
-        //   delete haters[i];
-        // }
+        hater.x < -50 && (hater.ttl = 0);
 
         followers.map((follower, j) => {
           // if (collides(hater, follower)) {
@@ -117,23 +96,46 @@ export default (props) => {
           color: ['#f0f', '#ff0', '#0f0'][randInt(0,2)],
         }));
         nonFollowers[nonFollowers.length - 1].setScale(.2, -.2);
+
+        player.setCollision(nonFollowers[nonFollowers.length - 1], object => {
+          if (object.collected) return;
+          object.ttl = 0;
+          score += 10;
+
+          followers.push(new Bird({
+            x: object.x,
+            y: object.y,
+            type: 0,
+            // rotation: 1.57,
+            color: object.color,
+          }));
+  
+          followers[followers.length - 1].setScale(.2);
+
+          object.collect();
+        });
       }
 
       if (randInt(0, 300) == 0 && haters.length < 5) {
         haters.push(new Bird({
           x: this.context.canvas.width + 100,
-          y: randInt(100, this.context.canvas.height - 200),
+          y: randInt(0, 200),
           type: 2,
           rotation: 1.57,
           color: '#f00',
-          dx: -randInt(2, 7) / 5,
+          dx: -randInt(2, 7) / 2,
           // dy: 1.5,
         }));
         haters[haters.length - 1].setScale(.5, -.3);
         player.setCollision(haters[haters.length - 1], (object) => {
           reputation--;
-          // delete haters[haters.length - 1];
-          // console.log(haters.length);
+        });
+
+        followers.map(follower => {
+          follower.setCollision(haters[haters.length - 1], (object, obj2) => {
+            reputation--;
+            follower.ttl = 0;
+          });
         });
       }
 
@@ -148,15 +150,15 @@ export default (props) => {
         player.setCollision(hearts[hearts.length - 1], object => {
           if (object.collected) return;
           object.collect();
-          score++;
+          score += 1 + followers.length;
         });
 
       }
 
       hearts = hearts.filter(heart => heart.isAlive());
-
-      text.text = 'SCORE ' + score.toString();
-      text.text += '\nCRED ' + reputation.toString();
+      haters = haters.filter(hater => hater.isAlive());
+      nonFollowers = nonFollowers.filter(nonFollower => nonFollower.isAlive());
+      followers = followers.filter(follower => follower.isAlive());
     },
 
     render() {
@@ -181,12 +183,7 @@ export default (props) => {
 
       // text.render();
       drawText(context, 'Score ' + score, 5, 10, 2, '#000', 3);
-
-      drawText(context, 'You have been', 5, 400, 2, '#fff', 4);
-      drawText(context, '404ed!', 5, 440, 2, '#fff', 4);
-
-      drawText(context, 'You have been', 5, 400, 2, '#006', 2);
-      drawText(context, '404ed!', 5, 440, 2, '#006', 2);
+      drawText(context, 'Reputation ' + reputation, 5, 50, 1, '#000', 3);
 
       // drawText(context, 'Larry', 10, 405, 6, '#fff', 3);
       // drawText(context, 'Larry', 5, 400, 6, '#006', 2);

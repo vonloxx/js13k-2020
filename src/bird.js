@@ -68,21 +68,20 @@ export default class Bird extends GameObject.class {
     this.dy = dy || 0;
     this.collidingObjects = [];
     this.colliding = false;
-    this.text = Text({
-      text: '',
-      font: '32px Arial',
-      color: 'black',
-      x: 300,
-      y: 200,
-      anchor: {x: 0.5, y: 0.5},
-      textAlign: 'center'
-    });
+    this.collected = false,
     this.bound = bound || 0.15;
   }
 
   moveTo(target) {
     this.targetX = target.x;
     this.targetY = target.y;
+  }
+
+  collect() {
+    if (this.collected) return;
+    this.collected = true;
+    // this.ttl = 0;
+
   }
 
   setCollision(object, callback) {
@@ -101,8 +100,13 @@ export default class Bird extends GameObject.class {
     if (this.type == 0) {
       move(this);
       this.dy = 0;
+    } else if (this.type == 2) {
+      this.dy = Math.sin(this.counter / 40) * 2.5;
+      let angle = angleToTarget(this, {x: this.x + this.dx, y: this.y + this.dy});
+      this.rotation = 2.88 + angle;
+      this.y += this.dy;
+      this.x += this.dx;
     } else {
-      this.dy = 0;
       this.x += this.dx;
     }
 
@@ -111,7 +115,7 @@ export default class Bird extends GameObject.class {
       if (collides(object, this)) {
         callback = callback || (() => {});
         this.colliding = true;
-        callback(object);
+        callback(object, this);
         // console.log('collided');
       }
       // collides(this, obj) && (this.colliding = true);
