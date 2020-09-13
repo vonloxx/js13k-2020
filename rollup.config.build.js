@@ -5,11 +5,14 @@ import { string } from "rollup-plugin-string";
 import stripCode from "rollup-plugin-strip-code";
 import copy from 'rollup-plugin-copy';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import kontra from 'rollup-plugin-kontra'
+import rollupPluginES6ClassMinify from 'rollup-plugin-es6-class-minify';
 
 const options = {
+  toplevel: true,
   mangle: {
     properties: false,
-    toplevel: true,
+    keep_fnames: false,
   },
   compress: {
     passes: 5,
@@ -18,7 +21,7 @@ const options = {
   },
   ecma: 6, // specify one of: 5, 6, 7 or 8
   // keep_classnames: false,
-  // keep_fnames: false,
+  keep_fnames: false,
   // ie8: false,
   // module: false,
   // nameCache: null, // or specify a name cache object
@@ -45,6 +48,19 @@ const plugins = [
     start_comment: 'start-test-code',
     end_comment: 'end-test-code'
   }),
+  kontra({
+    gameObject: {
+      rotation: true,
+    }
+  }),
+  rollupPluginES6ClassMinify(),
+  // kontra({
+  //   gameObject: {
+  //     acceleration: false,
+  //     camera: false,
+  //     opacity: false,
+  //   }
+  // }),
 ];
 
 module.exports = [
@@ -52,7 +68,7 @@ module.exports = [
     input: 'src/main.js',
     output: {
       file: 'docs/bundle.js',
-      format: 'iife',
+      format: 'cjs',
       // sourcemap: 'inline',
     },
     treeshake: true,

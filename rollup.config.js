@@ -6,6 +6,7 @@ import image from 'rollup-plugin-img';
 import { string } from "rollup-plugin-string";
 import copy from 'rollup-plugin-copy';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import kontra from 'rollup-plugin-kontra'
 
 const options = {
   mangle: {
@@ -47,6 +48,16 @@ export default [{
     }),
     nodeResolve(),
     terser(options),
+    copy({
+      targets: [
+        { src: 'src/lib/zzfx.js', dest: 'dist' },
+        { src: 'src/lib/zzfxm.min.js', dest: 'dist' },
+      ]
+    }),
+    kontra({
+      debug: true,
+    }),
+
     // string({
     //   include: ['**/*.frag', '**/*.vert'],
     // }),

@@ -1,5 +1,5 @@
-import { GameObject, Text, inverseLerp } from 'kontra';
-import { drawPath, drawRect } from './lib';
+import { GameObject, inverseLerp } from 'kontra';
+import { drawPath, sounds } from './lib';
 
 export default class Heart extends GameObject.class {
   constructor(props) {
@@ -15,15 +15,6 @@ export default class Heart extends GameObject.class {
     this.dx = dx || -1.8;
     this.timer = 0;
     this.colliding = false;
-    this.text = Text({
-      text: '',
-      font: '32px Arial',
-      color: 'black',
-      x: 300,
-      y: 100,
-      anchor: {x: 0.5, y: 0.5},
-      textAlign: 'center'
-    });
     this.bound = bound || 0.15;
   }
 
@@ -47,7 +38,7 @@ export default class Heart extends GameObject.class {
           this.y += yDistance / 20;
       }
       this.opacity = inverseLerp(40, this.oX, this.x);
-      this.setScale(inverseLerp(40, this.oX, this.x));
+      this.setScale(inverseLerp(40, Math.abs(this.oX), Math.abs(this.x)));
       // console.log(inverseLerp(40, this.oY, this.y));
       // console.log(inverseLerp(100, this.oX, this.x));
     }
@@ -58,8 +49,7 @@ export default class Heart extends GameObject.class {
   collect() {
     if (this.collected) return;
 
-    window.zzfx && window.zzfx(...[null,null,537,.02,.02,.22,1,1.59,-6.98,4.97]);
-    // console.log(window.zzfx(...[null,null,537,.02,.02,.22,1,1.59,-6.98,4.97]));
+    sounds.play('pickup');
     this.timer = 0;
     this.collected = true;
     this.oX = this.x;

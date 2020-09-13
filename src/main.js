@@ -1,5 +1,42 @@
-import { init, initPointer, GameLoop, track, emit, on, onPointerDown, getPointer, randInt } from 'kontra';
+import { init, initPointer, GameLoop, track, emit, on, onPointerDown, getPointer } from 'kontra';
+import initBackgroundScene from './background-scene';
 import initGameScene from './game-scene';
+import initMenuScene from './menu-scene';
+import initGameOverScene from './game-over-scene';
+
+// ZzFXmicro - Zuper Zmall Zound Zynth - MIT License - Copyright 2019 Frank Force, hacked to add a pan node by @dhmstark
+zzfxV=.3    // volume
+zzfx=       // play sound
+(q=1,k=.05,c=220,e=0,t=0,u=.1,r=0,F=1,v=0,z=0,w=0,A=0,l=0,B=0,x=0,G=0,d=0,y=1,m=0,C=0)=>{let b=2*Math.PI,H=v*=500*b/zzfxR**2,I=(0<x?1:-1)*b/4,D=c*=(1+2*k*Math.random()-k)*b/zzfxR,Z=[],g=0,E=0,a=0,n=1,J=0,K=0,f=0,p,h;e=99+zzfxR*e;m*=zzfxR;t*=zzfxR;u*=zzfxR;d*=zzfxR;z*=500*b/zzfxR**3;x*=b/zzfxR;w*=b/zzfxR;A*=zzfxR;l=zzfxR*l|0;for(h=e+m+t+u+d|0;a<h;Z[a++]=f)++K%(100*G|0)||(f=r?1<r?2<r?3<r?Math.sin((g%b)**3):Math.max(Math.min(Math.tan(g),1),-1):1-(2*g/b%2+2)%2:1-4*Math.abs(Math.round(g/b)-g/b):Math.sin(g),f=(l?1-C+C*Math.sin(2*Math.PI*a/l):1)*(0<f?1:-1)*Math.abs(f)**F*q*zzfxV*(a<e?a/e:a<e+m?1-(a-e)/m*(1-y):a<e+m+t?y:a<h-d?(h-a-d)/u*y:0),f=d?f/2+(d>a?0:(a<h-d?1:(h-a)/d)*Z[a-d|0]/2):f),p=(c+=v+=z)*Math.sin(E*x-I),g+=p-p*B*(1-1E9*(Math.sin(a)+1)%2),E+=p-p*B*(1-1E9*(Math.sin(a)**2+1)%2),n&&++n>A&&(c+=w,D+=w,n=0),!l||++J%l||(c=D,v=H,n=n||1);q=zzfxX.createBuffer(1,h,zzfxR);q.getChannelData(0).set(Z);c=zzfxX.createBufferSource();c.buffer=q;c.connect(zzfxX.destination);c.start();return c};zzfxX=new(window.AudioContext||webkitAudioContext);zzfxR=44100;
+//! ZzFXM (v2.0.1) | (C) Keith Clark | MIT | https://github.com/keithclark/ZzFXM
+// zzfxM=(f,n,o,t=125)=>{let z,e,l,r,g,h,x,a,u,c,d,i,m,p,G,M,R=[],b=[],j=[],k=0,q=1,s={},v=zzfxR/t*60>>2;for(;q;k++)R=[q=a=d=m=0],o.map((t,d)=>{for(x=n[t][k]||[0,0,0],q|=!!n[t][k],G=m+(n[t][0].length-2-!a)*v,e=2,r=m;e<x.length+(d==o.length-1);a=++e){for(g=x[e],u=c!=(x[0]||0)|g|0,l=0;l<v&&a;l++>v-99&&u?i+=(i<1)/99:0)h=(1-i)*R[p++]/2||0,b[r]=(b[r]||0)+h*M-h,j[r]=(j[r++]||0)+h*M+h;g&&(i=g%1,M=x[1]||0,(g|=0)&&(R=s[[c=x[p=0]||0,g]]=s[[c,g]]||(z=[...f[c]],z[2]*=2**((g-12)/12),zzfxG(...z))))}m=G});return[b,j]};
+
+// const buffer = zzfxM(...songData);    // Generate the sample data
+let node, musicPlaying;
+
+// async function startMusic() {
+//   if (node) {
+//     return;
+//   }
+//   node = zzfxP(...buffer);
+//   node.loop = true;
+//   await zzfxX.resume();
+//   musicPlaying = true;
+//   // songStatusElem.textContent = 'Playing...';
+// }
+
+// async function stopMusic() {
+//   if (!node) {
+//     return
+//   }
+//   await zzfxX.suspend();
+//   node.stop();
+//   node.disconnect();
+//   node = null;
+//   musicPlaying = false;
+// }
+
+// startMusic();
 
 (async () => {
   let { canvas, context } = init('c');
@@ -8,23 +45,44 @@ import initGameScene from './game-scene';
 
   const pointer = initPointer();
   const gameScene = initGameScene();
+  const menuScene = initMenuScene();
+  const backgroundScene = initBackgroundScene();
+  const gameOverScene = initGameOverScene();
+  const scenes = [menuScene, gameScene, gameOverScene];
 
-  // track(gameScene);
-  onPointerDown(function(e, object) {
-    console.log('action!');
-    if (window.zzfx) return;
-    // ZzFXMicro - Zuper Zmall Zound Zynth 
-    window.zzfxV=.3; // volume
-    window.zzfx=    // play sound
-    (t=1,a=.05,n=220,e=0,f=0,h=.1,M=0,r=1,z=0,o=0,i=0,s=0,u=0,x=0,c=0,d=0,X=0,b=1,m=0,l=44100,B=99+e*l,C=f*l,P=h*l,g=m*l,w=X*l,A=2*Math.PI,D=(t=>0<t?1:-1),I=B+g+C+P+w,S=(z*=500*A/l**2),V=(n*=(1+2*a*Math.random()-a)*A/l),j=D(c)*A/4,k=0,p=0,q=0,v=0,y=0,E=0,F=1,G=[],H=window.zzfxX.createBufferSource(),J=window.zzfxX.createBuffer(1,I,l))=>{for(H.connect(window.zzfxX.destination);q<I;G[q++]=E)++y>100*d&&(y=0,E=k*n*Math.sin(p*c*A/l-j),E=D(E=M?1<M?2<M?3<M?Math.sin((E%A)**3):Math.max(Math.min(Math.tan(E),1),-1):1-(2*E/A%2+2)%2:1-4*Math.abs(Math.round(E/A)-E/A):Math.sin(E))*Math.abs(E)**r*t*window.zzfxV*(q<B?q/B:q<B+g?1-(q-B)/g*(1-b):q<B+g+C?b:q<I-w?(I-q-w)/P*b:0),E=w?E/2+(w>q?0:(q<I-w?1:(q-I)/w)*G[q-w|0]/2):E),k+=1-x+1e9*(Math.sin(q)+1)%2*x,p+=1-x+1e9*(Math.sin(q)**2+1)%2*x,n+=z+=500*o*A/l**3,F&&++F>s*l&&(n+=i*A/l,V+=i*A/l,F=0),u&&++v>u*l&&(n=V,z=S,v=1,F=F||1);return J.getChannelData(0).set(G),H.buffer=J,H.start(),H},window.zzfxX=new(window.AudioContext||webkitAudioContext);
-  });
+  let currentScene = 0;
 
   function resize() {
     emit('resize');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // canvas.width = window.innerWidth;
+    canvas.width = window.innerWidth > 1200 ? 1200 : window.innerWidth < 600 ? 600 : window.innerWidth;
+    canvas.height = window.innerHeight > 600 ? 600 : window.innerHeight < 300 ? 300 : window.innerHeight;
     context.imageSmoothingEnabled= false;
   };
+
+  on('menu-click', () => currentScene = 1);
+  on('game-over', (score) => {
+    localStorage.setItem('score', score);
+    const high_score = localStorage.getItem('high_score');
+    score > high_score && (localStorage.setItem('high_score', score));
+
+    gameScene.init();
+    menuScene.reset();
+    currentScene = 2;
+  });
+
+  on('menu-scene', () => {
+    currentScene == 2 && (
+      gameScene.init(),
+      menuScene.reset(),
+      currentScene = 0
+    );
+  });
+
+  on('toggle-music', () => {
+    musicPlaying && stopMusic();
+    !musicPlaying && startMusic();
+  });
 
   window.addEventListener('resize', resize, false);
   
@@ -32,10 +90,14 @@ import initGameScene from './game-scene';
   
   let loop = GameLoop({
     update: function(dt) {
-      gameScene.update();
+      backgroundScene.update();
+      scenes[currentScene].update();
+      // settingsScene.update();
     },
     render: function() {
-      gameScene.render();
+      backgroundScene.render();
+      scenes[currentScene].render();
+      // settingsScene.render();
     }
   });
   
